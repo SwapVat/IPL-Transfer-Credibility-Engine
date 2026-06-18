@@ -1,9 +1,14 @@
+import os
 import sys
-from app.core.database import get_driver, close_driver
+from neo4j import GraphDatabase
 
 
 def seed_data():
-    driver = get_driver()
+    neo4j_uri = os.getenv("NEO4J_URI", "bolt://localhost:7687")
+    neo4j_user = os.getenv("NEO4J_USERNAME", "neo4j")
+    neo4j_password = os.getenv("NEO4J_PASSWORD", "password")
+
+    driver = GraphDatabase.driver(neo4j_uri, auth=(neo4j_user, neo4j_password))
     
     print("Connecting to Neo4j and seeding 10 franchises...")
     try:
@@ -285,7 +290,7 @@ def seed_data():
         print(f"Seeding Error: {e}", file=sys.stderr)
         sys.exit(1)
     finally:
-        close_driver()
+        driver.close()
 
 
 if __name__ == "__main__":
