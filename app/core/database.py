@@ -9,10 +9,16 @@ def get_driver() -> Driver:
     """Get or initialize the global Neo4j driver."""
     global _driver
     if _driver is None:
-        _driver = GraphDatabase.driver(
-            settings.NEO4J_URI,
-            auth=(settings.NEO4J_USERNAME, settings.NEO4J_PASSWORD)
-        )
+        try:
+            temp_driver = GraphDatabase.driver(
+                settings.NEO4J_URI,
+                auth=(settings.NEO4J_USERNAME, settings.NEO4J_PASSWORD)
+            )
+            temp_driver.verify_connectivity()
+            _driver = temp_driver
+        except Exception as e:
+            print(f"Warning: Could not connect to Neo4j database: {e}")
+            _driver = None
     return _driver
 
 

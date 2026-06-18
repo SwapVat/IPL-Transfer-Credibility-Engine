@@ -14,8 +14,11 @@ async def health_check():
     neo4j_status = "unhealthy"
     try:
         driver = get_driver()
-        driver.verify_connectivity()
-        neo4j_status = "healthy"
+        if driver:
+            driver.verify_connectivity()
+            neo4j_status = "healthy"
+        else:
+            neo4j_status = "unhealthy (not connected)"
     except Exception as e:
         neo4j_status = f"unhealthy (error: {str(e)})"
 
@@ -29,6 +32,7 @@ async def health_check():
 async def search_rumors(query: str = Query(None)):
     """Search rumors, run contradiction checks, and dynamically calculate credibility details."""
     driver = get_driver()
+    if not driver: return []
     
     cypher_query = """
     MATCH (p:Player)-[:TARGET_OF]->(r:Rumour)-[:LINKED_TO]->(f:Franchise)
@@ -263,6 +267,7 @@ async def cast_vote(id: str, payload: VoteRequest):
         return {"error": "Invalid vote type. Must be 'YES' or 'NO'."}
         
     driver = get_driver()
+    if not driver: return {"status": "error", "message": "Database disconnected"}
     
     if vote_type == "YES":
         cypher_query = """
@@ -303,6 +308,7 @@ async def cast_vote(id: str, payload: VoteRequest):
 async def get_leaderboard():
     """Retrieve sports journalists sorted by their dynamically calculated accuracy."""
     driver = get_driver()
+    if not driver: return []
     cypher_query = """
     MATCH (j:Journalist)
     RETURN 
@@ -358,6 +364,7 @@ async def get_leaderboard():
 async def get_all_franchises():
     """Retrieve all seeded team profiles including their remaining purse space and squad slots."""
     driver = get_driver()
+    if not driver: return []
     cypher_query = """
     MATCH (f:Franchise)
     RETURN f.name AS name, f.purse_remaining_cr AS purse, f.remaining_squad_slots AS squad_slots
@@ -382,6 +389,7 @@ async def get_all_franchises():
 async def get_franchise_details(team: str):
     """Retrieve available purse, remaining squad slots, incoming/outgoing rumors counts, and key intelligence insights for a franchise."""
     driver = get_driver()
+    if not driver: return {}
     
     # Capitalize input to match team names (e.g. csk -> CSK, gt -> GT)
     team_upper = team.upper()
@@ -506,6 +514,7 @@ async def get_franchise_details(team: str):
 async def get_agent_analytics():
     """Retrieve agencies representing players in KKR, CSK, and MI, sorted by representation volume."""
     driver = get_driver()
+    if not driver: return []
     cypher_query = """
     MATCH (p:Player)-[:REPRESENTED_BY]->(a:Agent)
     MATCH (p)-[:PLAYS_FOR]->(f:Franchise)
@@ -547,6 +556,7 @@ class TradeSimulationRequest(BaseModel):
 async def simulate_trades(payload: TradeSimulationRequest):
     """Simulate a set of player trades between franchises, checking budget space and squad roster capacity."""
     driver = get_driver()
+    if not driver: return {"status": "error", "message": "Database disconnected"}
     
     # 1. Fetch current status of players and franchises from Neo4j
     players_query = "MATCH (p:Player) RETURN p.name AS name, COALESCE(p.value_cr, 5.0) AS value"
@@ -704,6 +714,7 @@ async def simulate_trades(payload: TradeSimulationRequest):
 async def get_backtest_list():
     """Retrieve all completed past transfer rumors (sagas) for backtesting selection."""
     driver = get_driver()
+    if not driver: return []
     cypher_query = """
     MATCH (h:HistoricRumour)
     RETURN h.id AS id, h.player AS player, h.franchise AS franchise, h.year AS year, h.final_outcome AS final_outcome
@@ -729,6 +740,7 @@ async def get_backtest_list():
 async def get_backtest_saga(saga_id: str):
     """Retrieve the chronological probability timeline for a specific backtest saga."""
     driver = get_driver()
+    if not driver: return {}
     cypher_query = """
     MATCH (h:HistoricRumour {id: $saga_id})
     RETURN h.id AS id, h.player AS player, h.franchise AS franchise, h.year AS year, h.final_outcome AS final_outcome, h.timeline_json AS timeline_json
@@ -769,6 +781,7 @@ class ExplainRequest(BaseModel):
 async def get_ai_explanation(payload: ExplainRequest):
     """Scan Neo4j graph context for player rumors and query Gemini API to generate structured transfer explanations."""
     driver = get_driver()
+    if not driver: return {"explanation": "Cannot generate explanation while database is disconnected."}
     player_name = payload.player
     user_query = payload.query
     
@@ -917,6 +930,7 @@ async def get_transfer_volatility(player_id: str):
     Generate mock hourly candlestick volatility data (Open, High, Low, Close) over the last 24 hours.
     """
     driver = get_driver()
+    if not driver: return {}
     base_probability = 50.0
     
     # Try to resolve player or rumor node starting point
@@ -1010,6 +1024,7 @@ async def export_transfer_report(player_id: str):
     from reportlab.lib import colors
 
     driver = get_driver()
+    if not driver: return Response(content="Database unavailable", media_type="text/plain", status_code=503)
     
     # 1. Fetch player and rumor details
     query = """
