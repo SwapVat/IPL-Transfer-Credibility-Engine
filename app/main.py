@@ -1,8 +1,8 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from app.core.config import settings
-from app.core.database import get_driver, close_driver
-from app.api import api_router
+from core.config import settings
+from core.database import get_driver, close_driver
+from api import api_router
 
 
 @asynccontextmanager

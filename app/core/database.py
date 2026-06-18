@@ -1,6 +1,6 @@
 from typing import Generator
 from neo4j import GraphDatabase, Driver
-from app.core.config import settings
+from core.config import settings
 
 _driver: Driver = None
 

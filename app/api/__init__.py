@@ -1,9 +1,9 @@
 import json
 from pydantic import BaseModel
 from fastapi import APIRouter, Query
-from app.core.database import get_driver
-from app.core.credibility_engine import calculate_credibility
-from app.core.contradiction_detector import detect_contradictions
+from core.database import get_driver
+from core.credibility_engine import calculate_credibility
+from core.contradiction_detector import detect_contradictions
 
 api_router = APIRouter()
 
@@ -758,7 +758,7 @@ async def get_backtest_saga(saga_id: str):
 
 from pydantic import BaseModel
 import google.generativeai as genai
-from app.core.config import settings
+from core.config import settings
 
 class ExplainRequest(BaseModel):
     player: str
