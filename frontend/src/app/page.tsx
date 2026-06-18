@@ -328,7 +328,7 @@ export default function Home() {
   const fetchHeatmapTeamDetails = async (team: string) => {
     setLoadingHeatmapTeam(true);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/v1/franchises/${team.toLowerCase()}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/franchises/${team.toLowerCase()}`);
       if (!res.ok) throw new Error("Failed to fetch team details");
       const data = await res.json();
       setHeatmapTeamDetails(data);
@@ -343,7 +343,7 @@ export default function Home() {
     setLoadingVolatility(true);
     try {
       const playerId = playerName.toLowerCase().replace(/\s+/g, "_");
-      const res = await fetch(`http://127.0.0.1:8000/api/v1/analytics/volatility/${playerId}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/analytics/volatility/${playerId}`);
       if (!res.ok) throw new Error("Failed to fetch volatility data");
       const data = await res.json();
       setVolatilityData(data);
@@ -368,8 +368,8 @@ export default function Home() {
     setError(null);
     try {
       const url = searchQuery
-        ? `http://127.0.0.1:8000/api/v1/rumors?query=${encodeURIComponent(searchQuery)}`
-        : "http://127.0.0.1:8000/api/v1/rumors";
+        ? `${process.env.NEXT_PUBLIC_API_URL}/api/v1/rumors?query=${encodeURIComponent(searchQuery)}`
+        : `${process.env.NEXT_PUBLIC_API_URL}/api/v1/rumors`;
       const res = await fetch(url);
       if (!res.ok) {
         throw new Error("Failed to connect to FastAPI backend");
@@ -401,7 +401,7 @@ export default function Home() {
   const handleVote = async (rumorId: string, voteType: "YES" | "NO") => {
     setVotingId(rumorId);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/v1/rumors/${rumorId}/vote`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/rumors/${rumorId}/vote`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ vote: voteType }),
@@ -449,7 +449,7 @@ export default function Home() {
     setLoadingLeaderboard(true);
     setError(null);
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/v1/journalists/leaderboard");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/journalists/leaderboard`);
       if (!res.ok) {
         throw new Error("Failed to fetch leaderboard from backend");
       }
@@ -470,7 +470,7 @@ export default function Home() {
     setLoadingFranchise(true);
     setError(null);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/v1/franchises/${team.toLowerCase()}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/franchises/${team.toLowerCase()}`);
       if (!res.ok) {
         throw new Error("Failed to fetch franchise details");
       }
@@ -488,7 +488,7 @@ export default function Home() {
 
   const fetchBacktests = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/v1/backtest");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/backtest`);
       if (!res.ok) throw new Error("Failed to fetch backtest list");
       const data = await res.json();
       setBacktestSagas(data);
@@ -500,7 +500,7 @@ export default function Home() {
   const fetchBacktestSagaDetails = async (sagaId: string) => {
     setLoadingBacktest(true);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/v1/backtest/${sagaId}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/backtest/${sagaId}`);
       if (!res.ok) throw new Error("Failed to fetch saga details");
       const data = await res.json();
       setSelectedSaga(data);
@@ -553,7 +553,7 @@ export default function Home() {
     const listToSimulate = customTradesList || sandboxTrades;
     if (listToSimulate.length === 0) return;
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/v1/simulator/trade", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/simulator/trade`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -625,7 +625,7 @@ export default function Home() {
     setChatLoading(true);
     
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/v1/explain", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/explain`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -1265,7 +1265,7 @@ export default function Home() {
                     </div>
                     
                     <a
-                      href={`http://127.0.0.1:8000/api/v1/reports/export/${selectedRumor.player.toLowerCase().replace(/\s+/g, "_")}`}
+                      href={`${process.env.NEXT_PUBLIC_API_URL}/api/v1/reports/export/${selectedRumor.player.toLowerCase().replace(/\s+/g, "_")}`}
                       download
                       className="mt-2.5 bg-slate-900/10 dark:bg-white/10 hover:bg-slate-900/20 dark:hover:bg-white/20 border border-slate-500/10 active:scale-95 transition-all text-xs font-bold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 uppercase tracking-wide cursor-pointer w-full text-center hover:no-underline"
                     >
